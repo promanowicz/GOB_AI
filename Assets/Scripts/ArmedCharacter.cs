@@ -3,6 +3,8 @@
 using UnityEngine;
 
 class ArmedCharacter : MovableCharacter{
+    public Transform debugShootTarget;
+
     public GameObject bulletPrefab;
     public float shootCooldown = 2;
     private float timeToFire = 0;
@@ -11,9 +13,16 @@ class ArmedCharacter : MovableCharacter{
     public int totalAmmo = 4;
     public int currentMagAmmo = 2;
 
+    public void Start(){
+        if (debugShootTarget != null){
+            shootAt(debugShootTarget);
+        }
+        base.Start();
+    }
+
     public void shootAt(Transform t){
         if (timeToFire <= 0 && currentMagAmmo > 0){
-            GameObject bullet = Instantiate(bulletPrefab, transform, true);
+            GameObject bullet = Instantiate(bulletPrefab, transform.position+t.position.normalized*2,transform.rotation);
             Bullet bulletControl = bullet.GetComponent<Bullet>();
             bulletControl.fireAt(t);
 
@@ -56,5 +65,9 @@ class ArmedCharacter : MovableCharacter{
             }
             Destroy(collisioningObj);
         }
+    }
+
+    void OnTriggerEnter(Collider col){
+        
     }
 }

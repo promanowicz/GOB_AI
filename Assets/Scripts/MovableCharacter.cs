@@ -11,17 +11,36 @@ public class MovableCharacter : MonoBehaviour{
     private Rigidbody mRigidbody;
     public int hpPoints = 100;
     private bool hasGoToPos = false;
+    private bool isCrawling = false;
 
-    void Start()
+    public void startCrowling(){
+        if (isCrawling) return;
+        transform.localScale = new Vector3(transform.localScale.x,transform.localScale.y-0.5f,transform.localScale.z);
+        transform.position = new Vector3(transform.position.x,transform.position.y-0.5f,transform.position.z);
+        isCrawling = true;
+    }
+
+    public void stopCrawling(){
+        if (!isCrawling) return;
+        transform.localScale = new Vector3(transform.localScale.x,transform.localScale.y+0.5f,transform.localScale.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+        isCrawling = false;
+    }
+
+    public void Start()
     {
         goToPoint = transform.position;
         mRigidbody = GetComponent<Rigidbody>();
+        if(debugDst!=null)
         goToPosition(debugDst);
     }
 	
 	// Update is called once per frame
-	public void Update () {
-		
+    private float timeElapsed = 0;
+	public void Update (){
+	    timeElapsed += Time.deltaTime;
+        if(timeElapsed>2&&!isCrawling && timeElapsed<6)startCrowling();
+        if(timeElapsed>6&&isCrawling)stopCrawling();
 	}
 
     public void goToPosition(Transform t){
@@ -41,7 +60,7 @@ public class MovableCharacter : MonoBehaviour{
             if (hasGoToPos)
             {
                 transform.LookAt(goToPoint);
-                Vector3 velocity = (goToPoint - transform.position).normalized * playerSpeed;
+                Vector3 velocity = (goToPoint - transform.position).normalized * (isCrawling?playerSpeed/2:playerSpeed);
                 if (!velocity.Equals(mRigidbody.velocity))
                     mRigidbody.velocity = velocity;
             }

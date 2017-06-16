@@ -12,7 +12,7 @@ public class Bullet : MonoBehaviour{
 
     private Rigidbody mRigidbody;
 
-    void Start()
+    public void Start()
     {
         mRigidbody = GetComponent<Rigidbody>();
         if(debugTransform!=null)
@@ -21,6 +21,7 @@ public class Bullet : MonoBehaviour{
 
     public void fireAt(Transform t){
         transform.LookAt(t);
+        mRigidbody = GetComponent<Rigidbody>();
         mRigidbody.velocity = (t.position - transform.position).normalized * speed;
         isFired = true;
     }
