@@ -8,12 +8,12 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour{
     public Camera playerCamera;
 
+
+    /*    public Text hpText;
+        public Text pointsText;
+        public Text TimeLeftText;*/
+
     public float playerSpeed;
-
-/*    public Text hpText;
-    public Text pointsText;
-    public Text TimeLeftText;*/
-
     public string HPpointsDscr = "HP: ";
 
     private Vector3 goToPoint;
