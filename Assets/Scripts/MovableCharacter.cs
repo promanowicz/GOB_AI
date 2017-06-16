@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameCharacter : MonoBehaviour{
+public class MovableCharacter : MonoBehaviour{
 
     public Transform debugDst;
 
-    public float playerSpeed;
+    public float playerSpeed=3;
     private Vector3 goToPoint;
     private Rigidbody mRigidbody;
     public int hpPoints = 100;
@@ -20,7 +20,7 @@ public class GameCharacter : MonoBehaviour{
     }
 	
 	// Update is called once per frame
-	void Update () {
+	public void Update () {
 		
 	}
 
@@ -29,7 +29,7 @@ public class GameCharacter : MonoBehaviour{
         goToPoint = new Vector3(t.position.x,transform.position.y,t.position.z);
     }
 
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
         if (isPositionReached())
         {

@@ -15,6 +15,7 @@ public class Bullet : MonoBehaviour{
     void Start()
     {
         mRigidbody = GetComponent<Rigidbody>();
+        if(debugTransform!=null)
         fireAt(debugTransform);
     }
 
@@ -24,7 +25,7 @@ public class Bullet : MonoBehaviour{
         isFired = true;
     }
 
-	void Update () {
+    public	void Update () {
 	    if (isFired){
 	        timeToLiveSeconds -= Time.deltaTime;
 	        if (timeToLiveSeconds < 0){
