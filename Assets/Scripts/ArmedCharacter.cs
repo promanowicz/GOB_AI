@@ -14,10 +14,19 @@ class ArmedCharacter : MovableCharacter{
     public int currentMagAmmo = 2;
 
     public void Start(){
+        base.Start();
         if (debugShootTarget != null){
             shootAt(debugShootTarget);
         }
-        base.Start();
+    }
+
+    void Update()
+    {
+        base.Update();
+        if (timeToFire > 0)
+        {
+            timeToFire -= Time.deltaTime;
+        }
     }
 
     public void shootAt(Transform t){
@@ -42,21 +51,15 @@ class ArmedCharacter : MovableCharacter{
     public void reload(){
     }
 
-    void Update(){
-        base.Update();
-        if (timeToFire > 0){
-            timeToFire -= Time.deltaTime;
-        }
-    }
-
     protected void reloadNeeded(){
     }
 
     protected void outOfAmmo(){
     }
 
-    void OnCollisionEnter(Collision collision)
+    public void OnCollisionEnter(Collision collision)
     {
+        base.OnCollisionEnter(collision);
         GameObject collisioningObj = collision.gameObject;
         if (collisioningObj.tag == "ammo"){
             totalAmmo += 10;
@@ -67,7 +70,7 @@ class ArmedCharacter : MovableCharacter{
         }
     }
 
-    void OnTriggerEnter(Collider col){
-        
+    public void OnTriggerEnter(Collider col){
+        base.OnTriggerEnter(col);
     }
 }

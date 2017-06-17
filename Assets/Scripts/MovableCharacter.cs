@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovableCharacter : MonoBehaviour{
+public class MovableCharacter : GoalOrientedCharacter{
 
     public Transform debugDst;
 
     public float playerSpeed=3;
     private Vector3 goToPoint;
     private Rigidbody mRigidbody;
-    public int hpPoints = 100;
     private bool hasGoToPos = false;
     private bool isCrawling = false;
 
@@ -29,19 +28,12 @@ public class MovableCharacter : MonoBehaviour{
 
     public void Start()
     {
+        base.Start();
         goToPoint = transform.position;
         mRigidbody = GetComponent<Rigidbody>();
         if(debugDst!=null)
         goToPosition(debugDst);
     }
-	
-	// Update is called once per frame
-    private float timeElapsed = 0;
-	public void Update (){
-	    timeElapsed += Time.deltaTime;
-        if(timeElapsed>2&&!isCrawling && timeElapsed<6)startCrowling();
-        if(timeElapsed>6&&isCrawling)stopCrawling();
-	}
 
     public void goToPosition(Transform t){
         hasGoToPos = true;
@@ -74,6 +66,17 @@ public class MovableCharacter : MonoBehaviour{
         int currX = Mathf.RoundToInt(transform.position.x);
         int currY = Mathf.RoundToInt(transform.position.z);
         return dstX == currX && dstZ == currY;
+    }
+
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        base.OnCollisionEnter(collision);
+    }
+
+    public void OnTriggerEnter(Collider col)
+    {
+        base.OnTriggerEnter(col);
     }
 
 
