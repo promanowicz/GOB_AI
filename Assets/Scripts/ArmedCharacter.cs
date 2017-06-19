@@ -159,7 +159,7 @@ class ArmedCharacter : MovableCharacter{
             switch (g.name)
             {
                 case Goals.SURVIVE_NAME:
-                    return -2f;
+                    return -3f;
                     break;
                 default:
                     return 0f;
