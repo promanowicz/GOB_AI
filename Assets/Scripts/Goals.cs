@@ -20,7 +20,7 @@ public sealed class Goals{
         public SurviveGoal(float importance) : base(SURVIVE_NAME, importance){}
         public override float getDiscontentment(float newImportanceValue)
         {
-            return newImportanceValue * newImportanceValue;
+            return newImportanceValue * newImportanceValue * newImportanceValue;
         }
     }
 

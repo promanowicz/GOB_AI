@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using UnityEngine.VR.WSA.Input;
 
 public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
     //MOVABLE CHARACTER
@@ -116,6 +115,10 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
     public void OnCollisionEnter(Collision collision){
     }
 
+    public void OnCollisionExit(Collision collision)
+    {
+    }
+
     public void OnTriggerEnter(Collider col){
         if (col.gameObject.tag.Equals(enemyTag)){
             RemoveAction(regenerateAction);
@@ -165,5 +168,9 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
             yield return new WaitForSeconds(waitTime);
             callback.OnActionEnd(this);
         }
+    }
+
+    public int hp(){
+        return hpPoints;
     }
 }

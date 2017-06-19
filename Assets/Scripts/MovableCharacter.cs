@@ -53,8 +53,12 @@ public class MovableCharacter : GoalOrientedCharacter{
     }
 
     public void goToPosition(Transform t){
+        goToPosition(new Vector3(t.position.x, transform.position.y, t.position.z));
+    }
+    public void goToPosition(Vector3 t)
+    {
         hasGoToPos = true;
-        goToPoint = new Vector3(t.position.x, transform.position.y, t.position.z);
+        goToPoint = t;
         RemoveAction(patrolAction);
     }
 
@@ -89,6 +93,12 @@ public class MovableCharacter : GoalOrientedCharacter{
 
     public void OnCollisionEnter(Collision collision){
         base.OnCollisionEnter(collision);
+        if (collision.gameObject.tag.Equals("AiBullet")){
+            decreaseHP(5);
+            if (!isCrawling){
+                decreaseHP(10);
+            }
+        }
     }
 
     public void OnTriggerEnter(Collider col){
@@ -96,7 +106,17 @@ public class MovableCharacter : GoalOrientedCharacter{
         if (col.gameObject.tag.Equals(enemyTag)&& currentlyRunningAction==patrolAction)
         {
             hasGoToPos = false;
+            goToPosition((transform.position + col.gameObject.transform.position) / 2);
+            RemoveAction(patrolAction);
             patrolAction.onObjDstReached();
+        }
+    }
+
+    public void OnTriggerExit(Collider col){
+        base.OnTriggerExit(col);
+        if (col.gameObject.tag.Equals(enemyTag) && currentlyRunningAction == patrolAction)
+        {
+            AddAction(patrolAction);
         }
     }
 
