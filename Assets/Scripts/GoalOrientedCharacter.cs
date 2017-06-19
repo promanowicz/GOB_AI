@@ -12,12 +12,14 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
     private int hpPoints = 100;
     [SerializeField]
     private int stamina = 100;
+    public string enemyTag;
     protected List<Goal> goals;
     protected List<Action> availableActions;
     protected Goal restGoal = new Goals.RestGoal(1);
-    protected Goal surviveGoal = new Goals.SurviveGoal(2.5f)  ;
+    protected Goal surviveGoal = new Goals.SurviveGoal(0)  ;
     protected Goal  FindEnemyGoal =new Goals.FindEnemyGoal(2.5f);
     protected Goal killEnemyGoal = new Goals.KillEnemyGoal(3f);
+    private RegenerateAction regenerateAction;
     public void Awake(){
         goals = new List<Goal>();
         //Initial values, reflecting state where stamina is full, hp is full, and no enemy is in range.
@@ -26,10 +28,12 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
         goals.Add(FindEnemyGoal);
         goals.Add(killEnemyGoal);
         availableActions = new List<Action>();
-        availableActions.Add(new GoalOrientedCharacter.RegenerateAction(this, this));
+        regenerateAction = new GoalOrientedCharacter.RegenerateAction(this, this);
+        availableActions.Add(regenerateAction);
+
     }
 
-    private Action currentlyRunningAction = null;
+    protected Action currentlyRunningAction = null;
     protected void updateAction(){
         if (currentlyRunningAction!=null||availableActions.Count == 0) return;
 
@@ -100,13 +104,30 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
     protected void decreaseHP(int decreaseVal)
     {
         hpPoints -= decreaseVal;
-        surviveGoal.importance += 0.1f * decreaseVal;
+        if (hpPoints < 50){
+            surviveGoal.importance += 3;
+        }
+        else{
+            surviveGoal.importance -= 3;
+            if (surviveGoal.importance < 0) surviveGoal.importance = 0;
+        }
     }
 
     public void OnCollisionEnter(Collision collision){
     }
 
     public void OnTriggerEnter(Collider col){
+        if (col.gameObject.tag.Equals(enemyTag)){
+            RemoveAction(regenerateAction);
+        }
+    }
+
+    public void OnTriggerExit(Collider col)
+    {
+        if (col.gameObject.tag.Equals(enemyTag))
+        {
+            AddAction(regenerateAction);
+        }
     }
 
     private class RegenerateAction : Action{

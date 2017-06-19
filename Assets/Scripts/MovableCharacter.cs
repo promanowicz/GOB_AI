@@ -93,6 +93,11 @@ public class MovableCharacter : GoalOrientedCharacter{
 
     public void OnTriggerEnter(Collider col){
         base.OnTriggerEnter(col);
+        if (col.gameObject.tag.Equals(enemyTag)&& currentlyRunningAction==patrolAction)
+        {
+            hasGoToPos = false;
+            patrolAction.onObjDstReached();
+        }
     }
 
     private class PatrolAction : Action{
@@ -143,7 +148,7 @@ public class MovableCharacter : GoalOrientedCharacter{
         {
             switch (g.name)
             {
-                case Goals.TAKE_A_REST_NAME:
+                case Goals.SURVIVE_NAME:
                     return 0f;
                     break;
                 default:
