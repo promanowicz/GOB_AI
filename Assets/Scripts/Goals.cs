@@ -38,7 +38,7 @@ public sealed class Goals{
         public KillEnemyGoal(float importance) : base(KILL_ENEMY_NAME, importance) { }
         public override float getDiscontentment(float newImportanceValue)
         {
-            return newImportanceValue * newImportanceValue*newImportanceValue;
+            return newImportanceValue * newImportanceValue;
         }
     }
 }

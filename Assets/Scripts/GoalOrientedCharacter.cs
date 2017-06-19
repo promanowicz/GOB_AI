@@ -1,68 +1,90 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
 
 public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
-    public int hpPoints = 100;
-    public int stamina = 100;
+    //MOVABLE CHARACTER
+
+    //
+    [SerializeField]
+    private int hpPoints = 100;
+    [SerializeField]
+    private int stamina = 100;
     protected List<Goal> goals;
     protected List<Action> availableActions;
-
-    public readonly float hpRegenerateDelaySeconds = 5;
-    private float timeFromLastHpUpdate = 0;
-    public readonly float staminaRegenerateDelaySeconds = 1;
-    private float timeFromLastStaminaUpdate = 0;
-
+    protected Goal restGoal = new Goals.RestGoal(1);
+    protected Goal surviveGoal = new Goals.SurviveGoal(2.5f)  ;
+    protected Goal  FindEnemyGoal =new Goals.FindEnemyGoal(2.5f);
+    protected Goal killEnemyGoal = new Goals.KillEnemyGoal(3f);
     public void Awake(){
         goals = new List<Goal>();
         //Initial values, reflecting state where stamina is full, hp is full, and no enemy is in range.
-        goals.Add(new Goals.RestGoal(0));
-        goals.Add(new Goals.SurviveGoal(0));
-        goals.Add(new Goals.FindEnemyGoal(3));
-        goals.Add(new Goals.KillEnemyGoal(0));
+        goals.Add(surviveGoal);
+        goals.Add(restGoal);
+        goals.Add(FindEnemyGoal);
+        goals.Add(killEnemyGoal);
         availableActions = new List<Action>();
-        availableActions.Add(new GoalOrientedCharacter.RegenerateAction(this,this));;
+        availableActions.Add(new GoalOrientedCharacter.RegenerateAction(this, this));
     }
 
+    private Action currentlyRunningAction = null;
     protected void updateAction(){
-        if (availableActions.Count == 0) return;
+        if (currentlyRunningAction!=null||availableActions.Count == 0) return;
+
         Action bestAction = availableActions[0];
+        float bestDiscontentment = calculateDiscontentment(availableActions[0], goals);
+        StringBuilder builder = new StringBuilder();
+        builder.Append(" restGoal: " + restGoal.importance);
+        builder.Append(" surviveGoal: " + surviveGoal.importance);
+        builder.Append(" FindEnemyGoal: " + FindEnemyGoal.importance);
+        builder.Append("killEnemyGoal: " + killEnemyGoal.importance);
+
+        Debug.Log(builder);
+        Debug.Log("________________________________________");
+        foreach (var VARIABLE in availableActions){
+            float newDiscontentment = calculateDiscontentment(VARIABLE, goals);
+            Debug.Log(VARIABLE.ToString()+ " discontentment: " + newDiscontentment);
+
+            if (newDiscontentment <= bestDiscontentment){
+                bestAction = VARIABLE;
+                bestDiscontentment = newDiscontentment;
+            }
+        }
+        Debug.Log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+
+        currentlyRunningAction = bestAction;
         bestAction.performAction(this.gameObject);
-        Debug.Log("Choosing new best action.");
-        Debug.Log("New best action: " + bestAction.GetType().Name);
     }
 
     private float calculateDiscontentment(Action a, List<Goal> goals){
-        return 0;
+        float discontentment = 0;
+        foreach (var VARIABLE in goals){
+            float valueAfterAction = VARIABLE.importance + a.getGoalChange(VARIABLE);
+            discontentment += VARIABLE.getDiscontentment(valueAfterAction);
+        }
+        return discontentment;
     }
 
     public void Start(){
         updateAction();
     }
 
+
     public void Update(){
-        timeFromLastHpUpdate += Time.deltaTime;
-        if (timeFromLastHpUpdate > hpRegenerateDelaySeconds){
-            timeFromLastHpUpdate = 0;
-            if (hpPoints < 100){
-                hpPoints += 2;
-            }
-        }
-        timeFromLastStaminaUpdate += Time.deltaTime;
-        if (timeFromLastStaminaUpdate > staminaRegenerateDelaySeconds){
-            timeFromLastStaminaUpdate = 0;
-            if (stamina < 100){
-                stamina += 1;
-            }
-        }
+    
     }
 
-    public void OnActionEnd(){
+    public void OnActionEnd(Action src){
+        if (src == currentlyRunningAction){
+            currentlyRunningAction = null;
+        }
         updateAction();
     }
 
     protected void AddAction(Action newAct){
+        if(!availableActions.Contains(newAct))
         availableActions.Add(newAct);
     }
 
@@ -70,44 +92,57 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
         availableActions.Remove(toBeRemoved);
     }
 
-
-    public void OnCollisionEnter(Collision collision)
-    {
+    protected void decreaseStamina(int decreaseVal){
+        stamina -= decreaseVal;
+        restGoal.importance += 0.07f * decreaseVal;
     }
 
-    public void OnTriggerEnter(Collider col)
+    protected void decreaseHP(int decreaseVal)
     {
-
+        hpPoints -= decreaseVal;
+        surviveGoal.importance += 0.1f * decreaseVal;
     }
 
-    private class RegenerateAction :Action{
+    public void OnCollisionEnter(Collision collision){
+    }
+
+    public void OnTriggerEnter(Collider col){
+    }
+
+    private class RegenerateAction : Action{
         private GoalOrientedCharacter parent;
+
         public RegenerateAction(ActionCallback listener, GoalOrientedCharacter par) : base(listener){
             parent = par;
         }
+
         private IEnumerator coroutine;
+
         public override float getGoalChange(Goal g){
             switch (g.name){
                 case Goals.TAKE_A_REST_NAME:
-                    return 0.5f;
-                    break;
+                    return -0.16f;
                 case Goals.SURVIVE_NAME:
-                    return 0.1f;
-                    break;
+                    return -0.08f;
                 default:
                     return 0f;
-                    break;
             }
         }
+
         public override void performAction(GameObject go){
-           Debug.Log("Performing action: " + ToString());
+            Log("");
+            if(parent.stamina<100)
+            parent.decreaseStamina(-4);
+            if (parent.hpPoints < 100)
+            parent.decreaseHP(-2);
+
             parent.StartCoroutine(WaitSomeTime(1));
         }
 
-        private IEnumerator WaitSomeTime(float waitTime)
-        {
-                yield return new WaitForSeconds(waitTime);
-                callback.OnActionEnd();
+
+        private IEnumerator WaitSomeTime(float waitTime){
+            yield return new WaitForSeconds(waitTime);
+            callback.OnActionEnd(this);
         }
     }
 }

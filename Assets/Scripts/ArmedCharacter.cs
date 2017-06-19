@@ -14,10 +14,10 @@ class ArmedCharacter : MovableCharacter{
     public int currentMagAmmo = 2;
 
     public void Start(){
-        base.Start();
         if (debugShootTarget != null){
             shootAt(debugShootTarget);
         }
+        base.Start();
     }
 
     void Update()
