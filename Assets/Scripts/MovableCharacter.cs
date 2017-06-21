@@ -10,13 +10,16 @@ public class MovableCharacter : GoalOrientedCharacter{
     public Transform patrolBPoint;
 
     public float playerSpeed = 3;
-    private Vector3 goToPoint;
     private Rigidbody mRigidbody;
+    private Vector3 goToPoint;
     private bool hasGoToPos = false;
     protected bool isCrawling = false;
     private PatrolAction patrolAction;
     private CrowlAction crowlAction;
     private WalkAction walkAction;
+    private GetAmmoAction ammoAction = null;
+    public int currentMagAmmo = 2;
+
     public void startCrowling(){
         if (isCrawling) return;
         transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y - 0.5f, transform.localScale.z);
@@ -42,19 +45,19 @@ public class MovableCharacter : GoalOrientedCharacter{
         mRigidbody = GetComponent<Rigidbody>();
         if (debugDst != null)
             goToPosition(debugDst);
-        patrolAction = new PatrolAction(this,this);
-        crowlAction = new CrowlAction(this,this);
-        walkAction = new WalkAction(this,this);
+        patrolAction = new PatrolAction(this, this);
+        crowlAction = new CrowlAction(this, this);
+        walkAction = new WalkAction(this, this);
 
         AddAction(patrolAction);
-    //    AddAction(crowlAction);
+        //    AddAction(crowlAction);
         base.Start();
-
     }
 
     public void goToPosition(Transform t){
         goToPosition(new Vector3(t.position.x, transform.position.y, t.position.z));
     }
+
     public void goToPosition(Vector3 t){
         t.y = transform.position.y;
         hasGoToPos = true;
@@ -63,7 +66,7 @@ public class MovableCharacter : GoalOrientedCharacter{
     }
 
     public void FixedUpdate(){
-        if (hasGoToPos && isPositionReached()&&!isCrawling){
+        if (hasGoToPos && isPositionReached() && !isCrawling){
             AddAction(patrolAction);
             patrolAction.onObjDstReached();
         }
@@ -99,24 +102,35 @@ public class MovableCharacter : GoalOrientedCharacter{
                 decreaseHP(10);
             }
         }
+        GameObject collisioningObj = collision.gameObject;
+        if (collisioningObj.tag == "ammo")
+        {
+            currentMagAmmo += 10;
+            Destroy(collisioningObj);
+        }
     }
+
+    private Transform ammoPosition = null;
 
     public void OnTriggerEnter(Collider col){
         base.OnTriggerEnter(col);
-        if (col.gameObject.tag.Equals(enemyTag)&& currentlyRunningAction==patrolAction)
-        {
+        if (col.gameObject.tag.Equals(enemyTag) && currentlyRunningAction == patrolAction){
             hasGoToPos = false;
             goToPosition((transform.position + col.gameObject.transform.position) / 2);
             patrolAction.onObjDstReached();
             RemoveAction(patrolAction);
+        }
 
+        if (col.gameObject.tag.Equals("ammo")){
+            ammoPosition = col.gameObject.transform;
+            ammoAction = new GetAmmoAction(this, this);
+            AddAction(ammoAction);
         }
     }
 
     public void OnTriggerExit(Collider col){
         base.OnTriggerExit(col);
-        if (col.gameObject.tag.Equals(enemyTag) && currentlyRunningAction == patrolAction)
-        {
+        if (col.gameObject.tag.Equals(enemyTag) && currentlyRunningAction == patrolAction){
             AddAction(patrolAction);
         }
     }
@@ -142,8 +156,8 @@ public class MovableCharacter : GoalOrientedCharacter{
         }
 
         public override void performAction(GameObject go, bool isLoggable){
-            if(isLoggable)
-            Log("");
+            if (isLoggable)
+                Log("");
             if (destination == parent.patrolAPoint)
                 destination = parent.patrolBPoint;
             else destination = parent.patrolAPoint;
@@ -154,22 +168,53 @@ public class MovableCharacter : GoalOrientedCharacter{
         public void onObjDstReached(){
             callback.OnActionEnd(this);
         }
-
     }
 
-    private class CrowlAction : Action
-    {
+    private class GetAmmoAction : Action{
+        private MovableCharacter parent;
+        private Transform destination;
+
+        public GetAmmoAction(ActionCallback listener, MovableCharacter parent) : base(listener){
+            this.parent = parent;
+            destination = parent.patrolAPoint;
+        }
+
+        public override float getGoalChange(Goal g){
+            switch (g.name){
+                case Goals.TAKE_A_REST_NAME:
+                    return 0.4f;
+                case Goals.KILL_ENEMY_NAME:
+                    return -1f;
+                default:
+                    return 0f;
+            }
+        }
+
+        public override void performAction(GameObject go, bool isLoggable){
+            if (isLoggable)
+                Log("");
+
+            if (parent.ammoPosition != null){
+                parent.decreaseStamina(10);
+                parent.goToPosition(parent.ammoPosition);
+                parent.RemoveAction(this);
+            }
+        }
+
+        public void onObjDstReached(){
+            callback.OnActionEnd(this);
+        }
+    }
+
+    private class CrowlAction : Action{
         private MovableCharacter parent;
 
-        public CrowlAction(ActionCallback listener, MovableCharacter parent) : base(listener)
-        {
+        public CrowlAction(ActionCallback listener, MovableCharacter parent) : base(listener){
             this.parent = parent;
         }
 
-        public override float getGoalChange(Goal g)
-        {
-            switch (g.name)
-            {
+        public override float getGoalChange(Goal g){
+            switch (g.name){
                 case Goals.SURVIVE_NAME:
                     return 0f;
                     break;
@@ -179,27 +224,22 @@ public class MovableCharacter : GoalOrientedCharacter{
             }
         }
 
-        public override void performAction(GameObject go,bool isLoggable)
-        {
-            if(isLoggable)Log("");
+        public override void performAction(GameObject go, bool isLoggable){
+            if (isLoggable) Log("");
             parent.startCrowling();
             callback.OnActionEnd(this);
         }
     }
 
-    private class WalkAction : Action
-    {
+    private class WalkAction : Action{
         private MovableCharacter parent;
 
-        public WalkAction(ActionCallback listener, MovableCharacter parent) : base(listener)
-        {
+        public WalkAction(ActionCallback listener, MovableCharacter parent) : base(listener){
             this.parent = parent;
         }
 
-        public override float getGoalChange(Goal g)
-        {
-            switch (g.name)
-            {
+        public override float getGoalChange(Goal g){
+            switch (g.name){
                 case Goals.TAKE_A_REST_NAME:
                     return 0f;
                     break;
@@ -209,10 +249,9 @@ public class MovableCharacter : GoalOrientedCharacter{
             }
         }
 
-        public override void performAction(GameObject go, bool isLoggable)
-        {
-            if(isLoggable)
-            Log("");
+        public override void performAction(GameObject go, bool isLoggable){
+            if (isLoggable)
+                Log("");
             parent.stopCrawling();
             callback.OnActionEnd(this);
         }

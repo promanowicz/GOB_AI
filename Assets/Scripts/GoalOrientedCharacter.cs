@@ -40,10 +40,10 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
         float bestDiscontentment = calculateDiscontentment(availableActions[0], goals);
         if (isLoggable){
             StringBuilder builder = new StringBuilder();
-            builder.Append(" restGoal: " + restGoal.importance);
-            builder.Append(" surviveGoal: " + surviveGoal.importance);
-            builder.Append(" FindEnemyGoal: " + FindEnemyGoal.importance);
-            builder.Append("killEnemyGoal: " + killEnemyGoal.importance);
+            builder.Append(" restGoal: ".PadRight(16) + restGoal.importance);
+            builder.Append(" surviveGoal: ".PadRight(16) + surviveGoal.importance);
+            builder.Append(" FindEnemyGoal: ".PadRight(16) + FindEnemyGoal.importance);
+            builder.Append(" killEnemyGoal: ".PadRight(16) + killEnemyGoal.importance);
             Debug.Log(builder);
             if (logDetails){
                 Debug.Log("________________________________________");

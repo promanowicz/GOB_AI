@@ -11,9 +11,7 @@ class ArmedCharacter : MovableCharacter{
     public float shootCooldown = 2;
     private float timeToFire = 0;
 
-    public int magCapacity = 7;
-    public int totalAmmo = 4;
-    public int currentMagAmmo = 2;
+    
     private ShootAtEnemy shootAction;
     private RunawayAction runawayAction;
     public void Start(){
@@ -44,35 +42,13 @@ class ArmedCharacter : MovableCharacter{
             currentMagAmmo--;
         }
         if (currentMagAmmo == 0){
-            if (totalAmmo == 0){
-                outOfAmmo();
-            }
-            else{
-                reloadNeeded();
-            }
+           
         }
-    }
-
-    public void reload(){
-    }
-
-    protected void reloadNeeded(){
-    }
-
-    protected void outOfAmmo(){
     }
 
     public void OnCollisionEnter(Collision collision)
     {
         base.OnCollisionEnter(collision);
-        GameObject collisioningObj = collision.gameObject;
-        if (collisioningObj.tag == "ammo"){
-            totalAmmo += 10;
-            if (currentMagAmmo == 0){
-                reloadNeeded();
-            }
-            Destroy(collisioningObj);
-        }
         if (collision.gameObject.tag.Equals("AiBullet"))
         {
             if (hp() < 90){
