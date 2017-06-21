@@ -147,6 +147,7 @@ class ArmedCharacter : MovableCharacter{
         public override void performAction(GameObject go,bool isLoggalbe){
             if (isLoggalbe) Log("");
             parent.goToPosition(parent.transform.position-parent.enemyPosition.position);
+            parent.decreaseStamina(30);
             parent.StartCoroutine(WaitSomeTime(2));
         }
         private IEnumerator WaitSomeTime(float waitTime)

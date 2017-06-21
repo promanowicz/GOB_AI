@@ -52,8 +52,8 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
 
         StringBuilder builder1 = new StringBuilder("Available actions: ");
         foreach (var VARIABLE in availableActions){
-            builder1.Append(VARIABLE.GetType().Name + " ");
             float newDiscontentment = calculateDiscontentment(VARIABLE, goals);
+            builder1.Append(VARIABLE.GetType().Name + " " + newDiscontentment +" | ");
             if (isLoggable && logDetails)
                 Debug.Log(VARIABLE.ToString() + " discontentment: " + newDiscontentment);
 
@@ -158,7 +158,7 @@ public class GoalOrientedCharacter : MonoBehaviour, ActionCallback{
         public override float getGoalChange(Goal g){
             switch (g.name){
                 case Goals.TAKE_A_REST_NAME:
-                    return -0.16f;
+                    return -0.2f;
                 case Goals.SURVIVE_NAME:
                     return -0.08f;
                 default:

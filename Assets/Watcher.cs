@@ -77,7 +77,7 @@ public class Watcher : MonoBehaviour {
     {
         if (timeToFire <= 0)
         {
-            GameObject bullet = Instantiate(bulletPrefab, transform.position + t.position.normalized * 2, transform.rotation);
+            GameObject bullet = Instantiate(bulletPrefab, transform.position + t.position.normalized * -2, transform.rotation);
             Bullet bulletControl = bullet.GetComponent<Bullet>();
             bulletControl.fireAt(t);
 
@@ -86,7 +86,8 @@ public class Watcher : MonoBehaviour {
     }
 
     public void OnTriggerStay(Collider col){
-
+        transform.LookAt(col.gameObject.transform);
+        goToPoint = transform.position;
         shootAt(col.gameObject.transform);
         
     }
