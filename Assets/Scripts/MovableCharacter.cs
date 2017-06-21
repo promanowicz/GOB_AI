@@ -47,7 +47,7 @@ public class MovableCharacter : GoalOrientedCharacter{
         walkAction = new WalkAction(this,this);
 
         AddAction(patrolAction);
-        AddAction(crowlAction);
+    //    AddAction(crowlAction);
         base.Start();
 
     }
@@ -55,8 +55,8 @@ public class MovableCharacter : GoalOrientedCharacter{
     public void goToPosition(Transform t){
         goToPosition(new Vector3(t.position.x, transform.position.y, t.position.z));
     }
-    public void goToPosition(Vector3 t)
-    {
+    public void goToPosition(Vector3 t){
+        t.y = transform.position.y;
         hasGoToPos = true;
         goToPoint = t;
         RemoveAction(patrolAction);
@@ -107,8 +107,9 @@ public class MovableCharacter : GoalOrientedCharacter{
         {
             hasGoToPos = false;
             goToPosition((transform.position + col.gameObject.transform.position) / 2);
-            RemoveAction(patrolAction);
             patrolAction.onObjDstReached();
+            RemoveAction(patrolAction);
+
         }
     }
 
@@ -140,7 +141,8 @@ public class MovableCharacter : GoalOrientedCharacter{
             }
         }
 
-        public override void performAction(GameObject go){
+        public override void performAction(GameObject go, bool isLoggable){
+            if(isLoggable)
             Log("");
             if (destination == parent.patrolAPoint)
                 destination = parent.patrolBPoint;
@@ -177,8 +179,9 @@ public class MovableCharacter : GoalOrientedCharacter{
             }
         }
 
-        public override void performAction(GameObject go)
+        public override void performAction(GameObject go,bool isLoggable)
         {
+            if(isLoggable)Log("");
             parent.startCrowling();
             callback.OnActionEnd(this);
         }
@@ -206,8 +209,9 @@ public class MovableCharacter : GoalOrientedCharacter{
             }
         }
 
-        public override void performAction(GameObject go)
+        public override void performAction(GameObject go, bool isLoggable)
         {
+            if(isLoggable)
             Log("");
             parent.stopCrawling();
             callback.OnActionEnd(this);

@@ -126,8 +126,9 @@ class ArmedCharacter : MovableCharacter{
             }
         }
 
-        public override void performAction(GameObject go)
+        public override void performAction(GameObject go, bool isLoggable)
         {
+            if(isLoggable)
             Log("");
             if (parent.enemyPosition != null){
                 parent.shootAt(parent.enemyPosition);
@@ -167,7 +168,8 @@ class ArmedCharacter : MovableCharacter{
             }
         }
 
-        public override void performAction(GameObject go){
+        public override void performAction(GameObject go,bool isLoggalbe){
+            if (isLoggalbe) Log("");
             parent.goToPosition(parent.transform.position-parent.enemyPosition.position);
             parent.StartCoroutine(WaitSomeTime(2));
         }

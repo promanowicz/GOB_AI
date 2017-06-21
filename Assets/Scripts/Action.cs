@@ -15,7 +15,7 @@ public abstract class Action{
     }
 
     public abstract float getGoalChange(Goal g);
-    public abstract void performAction(GameObject go);
+    public abstract void performAction(GameObject go, bool isLoggable = false);
     protected void Log(string msg)
     {
         Debug.Log("Performing action: " + ToString() + " " + msg);
