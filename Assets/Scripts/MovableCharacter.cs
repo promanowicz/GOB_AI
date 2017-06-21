@@ -11,7 +11,6 @@ public class MovableCharacter : GoalOrientedCharacter{
 
     public float playerSpeed = 3;
     private Rigidbody mRigidbody;
-
     private Vector3 goToPoint;
     private bool hasGoToPos = false;
     protected bool isCrawling = false;
@@ -108,11 +107,11 @@ public class MovableCharacter : GoalOrientedCharacter{
         {
             currentMagAmmo += 10;
             Destroy(collisioningObj);
-            currentMagAmmo += 3;
-            Destroy(collisioningObj);
             RemoveAction(ammoAction);
             AddAction(patrolAction);
+            OnActionEnd(ammoAction);
             ammoAction = null;
+            
         }
     }
 
